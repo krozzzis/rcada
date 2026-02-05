@@ -1,0 +1,13 @@
+[workspace]
+resolver = "3"
+members = [
+    "rcada_core",
+    "rcada_server",
+]
+
+[workspace.dependencies.smol_str]
+version = "0.3"
+
+[workspace.dependencies.chrono]
+version = "0.4"
+default-features = false
