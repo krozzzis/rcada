@@ -36,3 +36,10 @@ workspace = true
 
 [dependencies.uuid]
 workspace = true
+
+[dependencies.async-trait]
+version = "0.1"
+
+[dependencies.tokio]
+workspace = true
+

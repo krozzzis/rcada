@@ -1,11 +1,8 @@
 use rcada_core::{tag::TagName, unit::Unit, value::DataType};
 
 use crate::tag_storage::TagRepository;
-use crate::tag_storage::adapter::inmemory::TagStorage;
 use crate::tag_storage::command::create_tag::CreateTagCommand;
-use crate::tag_storage::command::create_tag::CreateTagResult;
 use crate::tag_storage::command::delete_tag::DeleteTagCommand;
-use crate::tag_storage::command::delete_tag::DeleteTagResult;
 use crate::tag_storage::command::update_value::UpdateValueCommand;
 use crate::tag_storage::query::list_tags::ListTagsQuery;
 use crate::tag_storage::query::read_tag::ReadTagQuery;
@@ -57,6 +54,9 @@ impl<R: TagRepository> Container<R> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::tag_storage::adapter::inmemory::TagStorage;
+    use crate::tag_storage::command::create_tag::CreateTagResult;
+    use crate::tag_storage::command::delete_tag::DeleteTagResult;
 
     #[test]
     fn test_container_creation() {
