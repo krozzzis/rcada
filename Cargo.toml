@@ -3,8 +3,13 @@ resolver = "3"
 members = [
     "rcada_core",
     "rcada_server",
-    "rcada_modbus_simulator", "rcada_client",
+    "rcada_client",
+    "rcada_modbus_simulator",
 ]
+
+[workspace.package]
+authors = ["krozzzis"]
+repository = "https://github.com/krozzzis/rcada"
 
 [workspace.dependencies.smol_str]
 version = "0.3"

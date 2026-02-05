@@ -2,6 +2,8 @@
 name = "rcada_server"
 version = "0.1.0"
 edition = "2024"
+license = "AGPL-3.0"
+authors.workspace = true
 
 [dependencies.rcada_core]
 path = "../rcada_core"
@@ -42,4 +44,3 @@ version = "0.1"
 
 [dependencies.tokio]
 workspace = true
-
