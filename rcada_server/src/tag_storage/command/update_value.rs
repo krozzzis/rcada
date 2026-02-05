@@ -1,30 +1,16 @@
 use chrono::{DateTime, Utc};
 use rcada_core::{tag::TagName, value::DataType};
 
-pub trait UpdateValueRepository {
-    fn get_tag_value(&self, name: &TagName) -> Option<rcada_core::tag::TagValue>;
-    fn get_tag_data_type(&self, name: &TagName) -> Option<DataType>;
-    fn update_tag_value(
-        &self,
-        name: TagName,
-        value: rcada_core::tag::TagValue,
-    ) -> Result<UpdateValueOk, UpdateValueError>;
-}
+use crate::tag_storage::TagRepository;
 
-pub struct UpdateValue<R>
-where
-    R: UpdateValueRepository,
-{
+pub struct UpdateValueCommand<'a, R: TagRepository> {
     pub name: TagName,
     pub value: rcada_core::tag::TagValue,
-    repo: R,
+    repo: &'a R,
 }
 
-impl<R> UpdateValue<R>
-where
-    R: UpdateValueRepository,
-{
-    pub fn new(name: impl Into<TagName>, value: rcada_core::tag::TagValue, repo: R) -> Self {
+impl<'a, R: TagRepository> UpdateValueCommand<'a, R> {
+    pub fn new(name: impl Into<TagName>, value: rcada_core::tag::TagValue, repo: &'a R) -> Self {
         Self {
             name: name.into(),
             value,
@@ -32,7 +18,7 @@ where
         }
     }
 
-    pub fn execute(self) -> Result<UpdateValueOk, UpdateValueError> {
+    pub fn execute(self) -> Result<UpdateValueResult, UpdateValueError> {
         let data_type = self
             .repo
             .get_tag_data_type(&self.name)
@@ -67,7 +53,7 @@ where
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum UpdateValueOk {
+pub enum UpdateValueResult {
     Updated,
     Ignored,
 }
@@ -90,7 +76,7 @@ pub enum UpdateValueError {
 mod tests {
     use super::*;
     use crate::tag_storage::adapter::inmemory::TagStorage;
-    use crate::tag_storage::command::create_tag::CreateTag;
+    use crate::tag_storage::command::create_tag::CreateTagCommand;
     use chrono::Utc;
     use rcada_core::{
         tag::TagName,
@@ -103,12 +89,8 @@ mod tests {
         let repo = TagStorage::new();
         let tag_name = TagName::from("test_tag");
 
-        let create_command = CreateTag::new(
-            &*tag_name,
-            Unit::CelsiusDegree,
-            DataType::Float32,
-            repo.clone(),
-        );
+        let create_command =
+            CreateTagCommand::new(&*tag_name, Unit::CelsiusDegree, DataType::Float32, &repo);
         let _ = create_command.execute();
 
         let new_value = rcada_core::tag::TagValue {
@@ -116,9 +98,9 @@ mod tests {
             timestamp: Some(Utc::now()),
         };
 
-        let update_command = UpdateValue::new(&*tag_name, new_value, repo.clone());
+        let update_command = UpdateValueCommand::new(&*tag_name, new_value, &repo);
         let result = update_command.execute();
-        assert_eq!(result, Ok(UpdateValueOk::Updated));
+        assert_eq!(result, Ok(UpdateValueResult::Updated));
     }
 
     #[test]
@@ -126,12 +108,8 @@ mod tests {
         let repo = TagStorage::new();
         let tag_name = TagName::from("test_tag");
 
-        let create_command = CreateTag::new(
-            &*tag_name,
-            Unit::CelsiusDegree,
-            DataType::Float32,
-            repo.clone(),
-        );
+        let create_command =
+            CreateTagCommand::new(&*tag_name, Unit::CelsiusDegree, DataType::Float32, &repo);
         let _ = create_command.execute();
 
         let timestamp = Utc::now();
@@ -140,9 +118,9 @@ mod tests {
             timestamp: Some(timestamp),
         };
 
-        let update_command1 = UpdateValue::new(&*tag_name, new_value.clone(), repo.clone());
+        let update_command1 = UpdateValueCommand::new(&*tag_name, new_value.clone(), &repo);
         let result1 = update_command1.execute();
-        assert_eq!(result1, Ok(UpdateValueOk::Updated));
+        assert_eq!(result1, Ok(UpdateValueResult::Updated));
 
         let later_timestamp = timestamp + chrono::Duration::milliseconds(1);
         let same_value = rcada_core::tag::TagValue {
@@ -150,13 +128,13 @@ mod tests {
             timestamp: Some(later_timestamp),
         };
 
-        let update_command2 = UpdateValue::new(&*tag_name, same_value, repo.clone());
+        let update_command2 = UpdateValueCommand::new(&*tag_name, same_value, &repo);
         let result2 = update_command2.execute();
 
         assert!(result2.is_ok());
         assert!(matches!(
             result2,
-            Ok(UpdateValueOk::Updated) | Ok(UpdateValueOk::Ignored)
+            Ok(UpdateValueResult::Updated) | Ok(UpdateValueResult::Ignored)
         ));
     }
 
@@ -170,7 +148,7 @@ mod tests {
             timestamp: Some(Utc::now()),
         };
 
-        let update_command = UpdateValue::new(&*tag_name, new_value, repo.clone());
+        let update_command = UpdateValueCommand::new(&*tag_name, new_value, &repo);
         let result = update_command.execute();
         assert_eq!(result, Err(UpdateValueError::TagNameNotFound));
     }
@@ -180,12 +158,8 @@ mod tests {
         let repo = TagStorage::new();
         let tag_name = TagName::from("test_tag");
 
-        let create_command = CreateTag::new(
-            &*tag_name,
-            Unit::CelsiusDegree,
-            DataType::Float32,
-            repo.clone(),
-        );
+        let create_command =
+            CreateTagCommand::new(&*tag_name, Unit::CelsiusDegree, DataType::Float32, &repo);
         let _ = create_command.execute();
 
         let later_timestamp = Utc::now();
@@ -194,9 +168,9 @@ mod tests {
             timestamp: Some(later_timestamp),
         };
 
-        let update_command1 = UpdateValue::new(&*tag_name, first_value, repo.clone());
+        let update_command1 = UpdateValueCommand::new(&*tag_name, first_value, &repo);
         let result1 = update_command1.execute();
-        assert_eq!(result1, Ok(UpdateValueOk::Updated));
+        assert_eq!(result1, Ok(UpdateValueResult::Updated));
 
         let earlier_timestamp = later_timestamp - chrono::Duration::seconds(1);
         let second_value = rcada_core::tag::TagValue {
@@ -204,7 +178,7 @@ mod tests {
             timestamp: Some(earlier_timestamp),
         };
 
-        let update_command2 = UpdateValue::new(&*tag_name, second_value, repo.clone());
+        let update_command2 = UpdateValueCommand::new(&*tag_name, second_value, &repo);
         let result2 = update_command2.execute();
         assert!(matches!(
             result2,
@@ -217,12 +191,8 @@ mod tests {
         let repo = TagStorage::new();
         let tag_name = TagName::from("test_tag");
 
-        let create_command = CreateTag::new(
-            &*tag_name,
-            Unit::CelsiusDegree,
-            DataType::Float32,
-            repo.clone(),
-        );
+        let create_command =
+            CreateTagCommand::new(&*tag_name, Unit::CelsiusDegree, DataType::Float32, &repo);
         let _ = create_command.execute();
 
         let first_value = rcada_core::tag::TagValue {
@@ -230,16 +200,16 @@ mod tests {
             timestamp: Some(Utc::now()),
         };
 
-        let update_command1 = UpdateValue::new(&*tag_name, first_value, repo.clone());
+        let update_command1 = UpdateValueCommand::new(&*tag_name, first_value, &repo);
         let result1 = update_command1.execute();
-        assert_eq!(result1, Ok(UpdateValueOk::Updated));
+        assert_eq!(result1, Ok(UpdateValueResult::Updated));
 
         let second_value = rcada_core::tag::TagValue {
             value: Value::Float32(30.0),
             timestamp: None,
         };
 
-        let update_command2 = UpdateValue::new(&*tag_name, second_value, repo.clone());
+        let update_command2 = UpdateValueCommand::new(&*tag_name, second_value, &repo);
         let result2 = update_command2.execute();
         assert_eq!(result2, Err(UpdateValueError::NoneTimestampProvided));
     }
@@ -249,12 +219,8 @@ mod tests {
         let repo = TagStorage::new();
         let tag_name = TagName::from("test_tag");
 
-        let create_command = CreateTag::new(
-            &*tag_name,
-            Unit::CelsiusDegree,
-            DataType::Float32,
-            repo.clone(),
-        );
+        let create_command =
+            CreateTagCommand::new(&*tag_name, Unit::CelsiusDegree, DataType::Float32, &repo);
         let _ = create_command.execute();
 
         let invalid_value = rcada_core::tag::TagValue {
@@ -262,7 +228,7 @@ mod tests {
             timestamp: Some(Utc::now()),
         };
 
-        let update_command = UpdateValue::new(&*tag_name, invalid_value, repo.clone());
+        let update_command = UpdateValueCommand::new(&*tag_name, invalid_value, &repo);
         let result = update_command.execute();
         assert!(matches!(
             result,

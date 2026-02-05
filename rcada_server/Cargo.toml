@@ -7,8 +7,32 @@ edition = "2024"
 path = "../rcada_core"
 
 [dependencies.dashmap]
-version = "6.1"
+workspace = true
 
 [dependencies.chrono]
 workspace = true
-features = ["clock"]
+features = ["clock", "serde"]
+
+[dependencies.actix-web]
+workspace = true
+
+[dependencies.serde]
+workspace = true
+
+[dependencies.thiserror]
+workspace = true
+
+[dependencies.serde_json]
+workspace = true
+
+[dependencies.tracing]
+workspace = true
+
+[dependencies.tracing-actix-web]
+workspace = true
+
+[dependencies.tracing-subscriber]
+workspace = true
+
+[dependencies.uuid]
+workspace = true

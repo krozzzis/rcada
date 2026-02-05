@@ -8,3 +8,6 @@ workspace = true
 
 [dependencies.smol_str]
 workspace = true
+
+[dependencies.serde]
+workspace = true

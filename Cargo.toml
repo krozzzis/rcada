@@ -11,3 +11,35 @@ version = "0.3"
 [workspace.dependencies.chrono]
 version = "0.4"
 default-features = false
+
+[workspace.dependencies.serde]
+version = "1.0"
+features = ["derive"]
+
+[workspace.dependencies.dashmap]
+version = "6.1"
+
+[workspace.dependencies.actix-web]
+version = "4.8"
+features = ["macros"]
+
+[workspace.dependencies.thiserror]
+version = "2.0"
+
+[workspace.dependencies.serde_json]
+version = "1.0"
+
+[workspace.dependencies.tracing]
+version = "0.1"
+features = ["log"]
+
+[workspace.dependencies.tracing-actix-web]
+version = "0.7"
+
+[workspace.dependencies.tracing-subscriber]
+version = "0.3"
+features = ["env-filter"]
+
+[workspace.dependencies.uuid]
+version = "1.0"
+features = ["v4"]
