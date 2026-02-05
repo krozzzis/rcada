@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "rcada_core",
     "rcada_server",
+    "rcada_modbus_simulator",
 ]
 
 [workspace.dependencies.smol_str]
