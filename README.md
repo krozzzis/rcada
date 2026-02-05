@@ -2,6 +2,10 @@
 
 A SCADA system written in Rust.
 
+## Architecture
+
+![scheme](./content/rcada-scheme.svg)
+
 ## Building
 
 ### Linux
