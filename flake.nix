@@ -26,6 +26,15 @@
           # Core build tools
           pkg-config
           stdenv.cc # Provides the 'cc' linker
+          # OpenSSL for reqwest
+          openssl
+          libxcrypt
+          # X11/Wayland graphics libraries for Iced GUI
+          libx11
+          libxcursor
+          libxi
+          libxkbcommon
+          wayland
         ];
       in
       {
@@ -35,6 +44,10 @@
 
           # Environment variables for rust-analyzer
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
+
+          # Environment variables for OpenSSL build
+          OPENSSL_LIB_DIR = "${pkgs.openssl}/lib";
+          OPENSSL_NO_VENDOR = "1";
 
           # This is crucial for runtime linking. It tells the application where to find
           # shared libraries like libwayland-client.so when you run `cargo run`.
@@ -48,5 +61,19 @@
 
         # Formatter for Nix code, run with `nix fmt`
         formatter = pkgs.nixpkgs-fmt;
+
+        packages.default = pkgs.rustPlatform.buildRustPackage {
+          pname = "rcada";
+          version = "0.1.0";
+          src = self;
+          cargoLock.lockFile = ./Cargo.lock;
+          nativeBuildInputs = [ pkgs.pkg-config ];
+          buildInputs = with pkgs; [
+            openssl
+            libx11
+            libxkbcommon
+            wayland
+          ];
+        };
       });
 }

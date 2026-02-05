@@ -3,7 +3,7 @@ resolver = "3"
 members = [
     "rcada_core",
     "rcada_server",
-    "rcada_modbus_simulator",
+    "rcada_modbus_simulator", "rcada_client",
 ]
 
 [workspace.dependencies.smol_str]
@@ -44,3 +44,7 @@ features = ["env-filter"]
 [workspace.dependencies.uuid]
 version = "1.0"
 features = ["v4"]
+
+[workspace.dependencies.tokio]
+version = "1.0"
+features = ["full"]

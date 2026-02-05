@@ -2,7 +2,7 @@ use clap::Parser;
 use std::sync::{Arc, Mutex};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
-use tokio::time::{interval, Duration};
+use tokio::time::{Duration, interval};
 
 const SLAVE_ID: u8 = 1;
 const SENSOR_COUNT: usize = 6;
@@ -19,7 +19,9 @@ struct Sensors {
 
 impl Sensors {
     fn new() -> Self {
-        Self { values: [200, 500, 1013, 120, 1000, 1] }
+        Self {
+            values: [200, 500, 1013, 120, 1000, 1],
+        }
     }
 
     fn update_time(&mut self, _elapsed: Duration) {
@@ -52,10 +54,16 @@ async fn handle_client(stream: TcpStream, sensors: &Arc<Mutex<Sensors>>) -> std:
 
     loop {
         let n = stream.read(&mut buf).await?;
-        if n == 0 { break; }
+        if n == 0 {
+            break;
+        }
 
-        if n < 7 { continue; }
-        if buf[6] != SLAVE_ID && buf[6] != 0xff { continue; }
+        if n < 7 {
+            continue;
+        }
+        if buf[6] != SLAVE_ID && buf[6] != 0xff {
+            continue;
+        }
 
         let func = buf[7];
         let start = ((buf[8] as u16) << 8) | (buf[9] as u16);
