@@ -1,5 +1,5 @@
 use iced::widget::{Button, Column, Container, Row, Text};
-use iced::{Element, Length, Settings, Task, Subscription};
+use iced::{Element, Length, Settings, Subscription, Task};
 use rcada_core::{tag::Tag, unit::Unit};
 use serde::Deserialize;
 use std::time::Duration;
@@ -75,16 +75,24 @@ impl RcadaClient {
             .push(Text::new("Time").size(14).width(Length::FillPortion(1)))
             .push(Text::new("Type").size(14).width(Length::FillPortion(1)));
 
-        let rows = self.tags.clone().into_iter().map(|tag|
-                Row::new()
-                    .spacing(20)
-                    .push(Text::new(tag.name).size(14).width(Length::FillPortion(2)))
-                    .push(Text::new(tag.value).size(14).width(Length::FillPortion(1)))
-                    .push(Text::new(tag.unit).size(14).width(Length::FillPortion(1)))
-                    .push(Text::new(tag.timestamp).size(14).width(Length::FillPortion(1)))
-                    .push(Text::new(tag.data_type).size(14).width(Length::FillPortion(1)))
-                    .into()
-            );
+        let rows = self.tags.clone().into_iter().map(|tag| {
+            Row::new()
+                .spacing(20)
+                .push(Text::new(tag.name).size(14).width(Length::FillPortion(2)))
+                .push(Text::new(tag.value).size(14).width(Length::FillPortion(1)))
+                .push(Text::new(tag.unit).size(14).width(Length::FillPortion(1)))
+                .push(
+                    Text::new(tag.timestamp)
+                        .size(14)
+                        .width(Length::FillPortion(1)),
+                )
+                .push(
+                    Text::new(tag.data_type)
+                        .size(14)
+                        .width(Length::FillPortion(1)),
+                )
+                .into()
+        });
 
         let lines = Column::with_children(rows);
 
@@ -121,13 +129,11 @@ impl RcadaClient {
         let resp = reqwest::get(format!("{}/api/v1/tags", SERVER_URL)).await;
 
         match resp {
-            Ok(response) => {
-                match response.json::<TagsResponse>().await {
-                    Ok(tags) => tags.tags.into_iter().map(Into::into).collect(),
-                    Err(e) => {
-                        println!("{e:?}");
-                        Vec::new()
-                    }
+            Ok(response) => match response.json::<TagsResponse>().await {
+                Ok(tags) => tags.tags.into_iter().map(Into::into).collect(),
+                Err(e) => {
+                    println!("{e:?}");
+                    Vec::new()
                 }
             },
             Err(e) => {

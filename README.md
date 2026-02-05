@@ -23,6 +23,13 @@ cargo run -p rcada_server
 
 The server starts on `http://127.0.0.1:8080`
 
+```bash
+# Run the client
+cargo run -p rcada_client
+```
+
+The client listens on `http://127.0.0.1:8080`
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
