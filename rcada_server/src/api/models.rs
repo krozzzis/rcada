@@ -19,11 +19,7 @@ pub struct CreateTagResponse {
     pub result: CreateTagResult,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum CreateTagResult {
-    SuccessfullyCreated,
-    AlreadyExists,
-}
+pub use crate::tag_storage::message::CreateTagResult;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UpdateValueRequest {
@@ -36,11 +32,7 @@ pub struct UpdateValueResponse {
     pub result: UpdateValueResult,
 }
 
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub enum UpdateValueResult {
-    Updated,
-    Ignored,
-}
+pub use crate::tag_storage::message::UpdateValueResult;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TagResponse {
