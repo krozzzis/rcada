@@ -1,3 +1,8 @@
+#![cfg_attr(
+    all(not(debug_assertions), target_os = "windows"),
+    windows_subsystem = "windows"
+)]
+
 use iced::widget::{Button, Column, Container, Row, Text};
 use iced::{Element, Length, Settings, Subscription, Task};
 use rcada_core::{tag::Tag, unit::Unit};
