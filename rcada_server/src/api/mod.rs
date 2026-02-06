@@ -1,3 +1,5 @@
+pub mod models;
+
 use actix_web::{
     HttpResponse, Responder, delete, get, post, put,
     web::{Data, Json, Path},
@@ -16,8 +18,6 @@ use self::models::{
     CreateTagRequest, CreateTagResponse, CreateTagResult, ListTagsResponse, TagResponse,
     UpdateValueRequest, UpdateValueResponse, UpdateValueResult,
 };
-
-pub mod models;
 
 pub fn scope() -> actix_web::Scope {
     actix_web::web::scope("/api/v1")
@@ -140,10 +140,6 @@ pub async fn update_tag_value(
                 "expected": format!("{:?}", expected),
                 "actual": format!("{:?}", actual)
             }))
-        }
-        Err(UpdateValueError::NoneValueProvided) => {
-            tracing::warn!(%request_id, "Value required for update: {}", name_ref);
-            HttpResponse::BadRequest().body("Value is required")
         }
     }
 }

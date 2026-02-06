@@ -67,7 +67,6 @@ pub enum UpdateValueError {
         expected: DataType,
         actual: DataType,
     },
-    NoneValueProvided,
     NoneTimestampProvided,
     TagNameNotFound,
 }

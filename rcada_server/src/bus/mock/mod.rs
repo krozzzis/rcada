@@ -59,7 +59,6 @@ impl<R: TagRepository> BusDriver for MockBusDriver<R> {
         for (name, rate) in tags {
             let name = name.clone();
             let mut stop_rx = stop_rx.resubscribe();
-            let rate = rate;
             let di = di.clone();
 
             tokio::spawn(async move {
@@ -103,7 +102,7 @@ impl<R: TagRepository> BusDriver for MockBusDriver<R> {
         let min = self.min;
         let max = self.max;
 
-        for (name, _) in &self.tags {
+        for name in self.tags.keys() {
             let elapsed = (Utc::now() - start_time).num_milliseconds() as f64 / 1000.0;
             let sin_val = elapsed * 2.0;
             let value = min + sin_val.sin() * (max - min) / 2.0 + (max - min) / 2.0;

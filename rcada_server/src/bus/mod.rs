@@ -1,3 +1,5 @@
+pub mod mock;
+
 use async_trait::async_trait;
 use rcada_core::tag::TagName;
 use std::time::Duration;
@@ -14,5 +16,3 @@ pub trait BusDriver: Send + Sync {
 
     async fn poll(&self);
 }
-
-pub mod mock;

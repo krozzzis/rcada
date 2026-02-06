@@ -74,7 +74,7 @@ async fn handle_client(stream: TcpStream, sensors: &Arc<Mutex<Sensors>>) -> std:
             sensors.read(start, count)
         };
 
-        let byte_count = (count * 2) as u8;
+        let byte_count: u8 = (count * 2) as u8;
         let mut response = vec![0u8; 9 + byte_count as usize];
 
         response[0] = buf[0];
@@ -82,7 +82,7 @@ async fn handle_client(stream: TcpStream, sensors: &Arc<Mutex<Sensors>>) -> std:
         response[2] = 0;
         response[3] = 0;
         response[4] = 0;
-        response[5] = 3 + byte_count as u8;
+        response[5] = 3 + byte_count;
         response[6] = SLAVE_ID;
         response[7] = func;
         response[8] = byte_count;

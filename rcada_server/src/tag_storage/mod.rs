@@ -1,3 +1,7 @@
+pub mod adapter;
+pub mod command;
+pub mod query;
+
 use rcada_core::{
     tag::{Tag, TagName, TagValue},
     unit::Unit,
@@ -8,10 +12,6 @@ use crate::tag_storage::command::create_tag::CreateTagResult;
 use crate::tag_storage::command::delete_tag::DeleteTagError;
 use crate::tag_storage::command::update_value::{UpdateValueError, UpdateValueResult};
 use crate::tag_storage::query::read_tag::ReadTagError;
-
-pub mod adapter;
-pub mod command;
-pub mod query;
 
 pub trait TagRepository: Clone + Send + Sync + 'static {
     fn tag_exists(&self, name: &TagName) -> bool;

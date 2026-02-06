@@ -7,7 +7,7 @@ use crate::{
     value::{DataType, Value},
 };
 
-pub type TagName = String;
+pub type TagName = SmolStr;
 
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct TagValue {

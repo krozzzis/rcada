@@ -3,8 +3,8 @@
     windows_subsystem = "windows"
 )]
 
-use iced::widget::{Button, Column, Container, Row, Text};
-use iced::{Element, Length, Settings, Subscription, Task};
+use iced::widget::{Column, Container, Row, Text};
+use iced::{Element, Length, Subscription, Task};
 use rcada_core::{tag::Tag, unit::Unit};
 use serde::Deserialize;
 use std::time::Duration;
@@ -116,14 +116,12 @@ impl RcadaClient {
 
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
-            Message::Refresh => {
-                return Task::perform(RcadaClient::fetch_tags(), |tags| Message::Refreshed(tags));
-            }
+            Message::Refresh => Task::perform(RcadaClient::fetch_tags(), Message::Refreshed),
             Message::Refreshed(tags) => {
                 self.tags = tags;
+                Task::none()
             }
         }
-        return Task::none();
     }
 
     fn subscription(&self) -> Subscription<Message> {
