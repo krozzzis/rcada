@@ -6,6 +6,8 @@ use rcada_core::{
 };
 use serde::{Deserialize, Serialize};
 
+use crate::repository::tag::{CreateTagResult, UpdateValueResult};
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CreateTagRequest {
     pub name: String,
@@ -19,8 +21,6 @@ pub struct CreateTagResponse {
     pub result: CreateTagResult,
 }
 
-pub use crate::tag_storage::message::CreateTagResult;
-
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UpdateValueRequest {
     pub value: Value,
@@ -31,8 +31,6 @@ pub struct UpdateValueRequest {
 pub struct UpdateValueResponse {
     pub result: UpdateValueResult,
 }
-
-pub use crate::tag_storage::message::UpdateValueResult;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TagResponse {

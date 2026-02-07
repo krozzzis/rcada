@@ -5,12 +5,12 @@ use rcada_core::{
     value::{DataType, Value},
 };
 
-use crate::tag_storage::{
-    TagRepository,
-    message::{CreateTagResult, DeleteTagError, ReadTagError, UpdateValueError, UpdateValueResult},
+use crate::repository::tag::{
+    CreateTagResult, DeleteTagError, ReadTagError, TagRepository, UpdateValueError,
+    UpdateValueResult,
 };
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct TagStorage {
     values: DashMap<TagName, TagValue>,
     meta: DashMap<TagName, TagMeta>,
@@ -43,7 +43,13 @@ impl TagRepository for TagStorage {
             },
         );
 
-        self.meta.insert(name, TagMeta { unit, data_type });
+        self.meta.insert(
+            name,
+            TagMeta {
+                unit,
+                data_type,
+            },
+        );
 
         CreateTagResult::SuccessfullyCreated
     }

@@ -120,7 +120,7 @@ impl RcadaClient {
             Message::Refreshed(tags) => {
                 self.tags = tags;
                 Task::none()
-            }
+            },
         }
     }
 
@@ -137,12 +137,12 @@ impl RcadaClient {
                 Err(e) => {
                     println!("{e:?}");
                     Vec::new()
-                }
+                },
             },
             Err(e) => {
                 println!("{e:?}");
                 Vec::new()
-            }
+            },
         }
     }
 }

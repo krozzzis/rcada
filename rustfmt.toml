@@ -1,0 +1,6 @@
+struct_variant_width = 0      # 0 = always break to multiline
+struct_lit_width = 0          # also affects struct literals if needed
+
+# Optional helpers to make it look even nicer
+max_width = 100
+match_block_trailing_comma = true

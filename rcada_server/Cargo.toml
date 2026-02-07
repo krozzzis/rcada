@@ -5,8 +5,16 @@ edition = "2024"
 license = "AGPL-3.0"
 authors.workspace = true
 
+[features]
+default = []
+async-trait = []
+cluster = []
+
 [dependencies.rcada_core]
 path = "../rcada_core"
+
+[dependencies.ractor]
+workspace = true
 
 [dependencies.dashmap]
 workspace = true
