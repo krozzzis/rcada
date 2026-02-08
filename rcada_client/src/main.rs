@@ -24,8 +24,8 @@ pub struct TagDisplay {
 impl From<Tag> for TagDisplay {
     fn from(tag: Tag) -> Self {
         let value_str = match tag.value.value {
-            rcada_core::value::Value::Float32(v) => format!("{:.2}", v),
-            rcada_core::value::Value::Int32(v) => v.to_string(),
+            rcada_core::value::Value::Float(v) => format!("{:.2}", v),
+            rcada_core::value::Value::Integer(v) => v.to_string(),
             rcada_core::value::Value::Boolean(v) => v.to_string(),
             rcada_core::value::Value::String(v) => v,
             _ => format!("{:?}", tag.value.value),

@@ -29,7 +29,7 @@ async fn main() -> std::io::Result<()> {
     let (create_tag, mut result_rx) = crate::actor::tag::Message::create_tag(
         "temp",
         Unit::CelsiusDegree,
-        rcada_core::value::DataType::Float32,
+        rcada_core::value::DataType::Float,
     );
     tag_repo_ref
         .send_message(create_tag)
