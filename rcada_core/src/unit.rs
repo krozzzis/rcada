@@ -4,10 +4,14 @@ use serde::{Deserialize, Serialize};
 pub enum Unit {
     #[default]
     None,
+    Percent,
     Volt,
     Ampere,
     Degree,
-    CelsiusDegree,
     Radian,
-    Meter,
+    Celsius,
+    Kelvin,
+    Metre,
+    Kilogram,
+    Second,
 }

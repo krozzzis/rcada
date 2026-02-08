@@ -28,12 +28,20 @@ impl From<Tag> for TagDisplay {
             rcada_core::value::Value::Integer(v) => v.to_string(),
             rcada_core::value::Value::Boolean(v) => v.to_string(),
             rcada_core::value::Value::String(v) => v,
-            _ => format!("{:?}", tag.value.value),
         };
 
-        let unit_str = match tag.meta.unit {
-            Unit::CelsiusDegree => "°C",
-            _ => "",
+        let unit_suffix = match tag.meta.unit {
+            Unit::None => "",
+            Unit::Celsius => "°C",
+            Unit::Percent => "%",
+            Unit::Ampere => "A",
+            Unit::Volt => "V",
+            Unit::Degree => "°",
+            Unit::Radian => "rad",
+            Unit::Kelvin => "K",
+            Unit::Metre => "m",
+            Unit::Second => "s",
+            Unit::Kilogram => "kg",
         };
 
         let timestamp_str = tag
@@ -45,7 +53,7 @@ impl From<Tag> for TagDisplay {
         Self {
             name: tag.name.to_string(),
             value: value_str,
-            unit: unit_str.to_string(),
+            unit: unit_suffix.to_string(),
             timestamp: timestamp_str,
             data_type: format!("{:?}", tag.meta.data_type),
         }
