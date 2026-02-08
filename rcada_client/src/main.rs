@@ -3,14 +3,15 @@
     windows_subsystem = "windows"
 )]
 
-use iced::widget::{Column, Container, Row, Text};
+use iced::widget::{Column, Container, Row, Space, Text};
 use iced::{Element, Length, Subscription, Task};
 use rcada_core::{tag::Tag, unit::Unit};
 use serde::Deserialize;
 use std::time::Duration;
 
 const SERVER_URL: &str = "http://127.0.0.1:8080";
-const POLLING_RATE: u64 = 100;
+const POLLING_RATE: u64 = 200;
+const HEALTHCHECK_RATE: u64 = 1000;
 
 #[derive(Debug, Clone, Default)]
 pub struct TagDisplay {
@@ -68,15 +69,29 @@ struct TagsResponse {
 #[derive(Debug, Clone)]
 pub enum Message {
     Refresh,
+    HealthCheckServer,
+    HealthCheckServerResult(bool),
     Refreshed(Vec<TagDisplay>),
 }
 
 #[derive(Debug, Clone, Default)]
 struct RcadaClient {
     tags: Vec<TagDisplay>,
+    server_url: String,
+    server_online: bool,
 }
 
 impl RcadaClient {
+    fn new() -> (Self, Task<Message>) {
+        (
+            Self {
+                tags: Vec::new(),
+                server_url: SERVER_URL.to_string(),
+                server_online: false,
+            },
+            Task::none(),
+        )
+    }
     fn view(&self) -> Element<'_, Message> {
         let title = Text::new("RCADA Tag Viewer").size(28);
 
@@ -109,12 +124,24 @@ impl RcadaClient {
 
         let lines = Column::with_children(rows);
 
+        let status_bar = Column::with_children([
+            Text::new(self.server_url.clone()).into(),
+            Text::new(if self.server_online {
+                "Online"
+            } else {
+                "Offline"
+            })
+            .into(),
+        ]);
+
         let content = Column::new()
             .spacing(20)
             .padding(20)
             .push(title)
             .push(header)
-            .push(lines);
+            .push(lines)
+            .push(Space::new().height(Length::Fill))
+            .push(status_bar);
 
         Container::new(content)
             .width(Length::Fill)
@@ -124,16 +151,54 @@ impl RcadaClient {
 
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
-            Message::Refresh => Task::perform(RcadaClient::fetch_tags(), Message::Refreshed),
+            Message::Refresh => {
+                if self.server_online {
+                    Task::perform(RcadaClient::fetch_tags(), Message::Refreshed)
+                } else {
+                    Task::none()
+                }
+            },
             Message::Refreshed(tags) => {
                 self.tags = tags;
+                Task::none()
+            },
+            Message::HealthCheckServer => Task::perform(
+                RcadaClient::health_check(),
+                Message::HealthCheckServerResult,
+            ),
+            Message::HealthCheckServerResult(status) => {
+                self.server_online = status;
                 Task::none()
             },
         }
     }
 
     fn subscription(&self) -> Subscription<Message> {
-        iced::time::every(Duration::from_millis(POLLING_RATE)).map(|_| Message::Refresh)
+        let poll_tags =
+            iced::time::every(Duration::from_millis(POLLING_RATE)).map(|_| Message::Refresh);
+        let health_check = iced::time::every(Duration::from_millis(HEALTHCHECK_RATE))
+            .map(|_| Message::HealthCheckServer);
+
+        Subscription::batch([poll_tags, health_check])
+    }
+
+    async fn health_check() -> bool {
+        #[derive(Deserialize)]
+        struct HealthCheckResponse {
+            status: String,
+        }
+
+        let resp = reqwest::get(format!("{}/api/v1/health", SERVER_URL)).await;
+
+        match resp {
+            Ok(response) => match response.json::<HealthCheckResponse>().await {
+                Ok(HealthCheckResponse {
+                    status,
+                }) => true,
+                Err(_) => false,
+            },
+            Err(_) => false,
+        }
     }
 
     async fn fetch_tags() -> Vec<TagDisplay> {
@@ -143,12 +208,12 @@ impl RcadaClient {
             Ok(response) => match response.json::<TagsResponse>().await {
                 Ok(tags) => tags.tags.into_iter().map(Into::into).collect(),
                 Err(e) => {
-                    println!("{e:?}");
+                    eprintln!("{e:?}");
                     Vec::new()
                 },
             },
             Err(e) => {
-                println!("{e:?}");
+                eprintln!("{e:?}");
                 Vec::new()
             },
         }
@@ -156,7 +221,7 @@ impl RcadaClient {
 }
 
 fn main() -> iced::Result {
-    iced::application(RcadaClient::default, RcadaClient::update, RcadaClient::view)
+    iced::application(RcadaClient::new, RcadaClient::update, RcadaClient::view)
         .subscription(RcadaClient::subscription)
         .run()
 }
